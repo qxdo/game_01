@@ -23,8 +23,8 @@ export class MovingSceneBg extends Component {
     }
 
     private init() {
-        this.bg01.setPosition(0,0,0)
-        this.bg02.setPosition(0,0,- this.movingMaxRange)
+        this.bg01.setPosition(0,-20,0)
+        this.bg02.setPosition(0,-20,-this.movingMaxRange)
     }
 
     update(deltaTime: number) {
@@ -32,13 +32,13 @@ export class MovingSceneBg extends Component {
     }
 
     private moveBackground(deltaTime: number) {
-        this.bg01.setPosition(0,0, this.bg01.position.z + this.bgSpeed * deltaTime)
-        this.bg02.setPosition(0,0, this.bg02.position.z + this.bgSpeed * deltaTime)
+        this.bg01.setPosition(0,-20, this.bg01.position.z + this.bgSpeed * deltaTime)
+        this.bg02.setPosition(0,-20, this.bg02.position.z + this.bgSpeed * deltaTime)
 
         if (this.bg01.position.z > this.movingMaxRange) {
-            this.bg01.setPosition(0,0, this.bg02.position.z  - this.movingMaxRange)
+            this.bg01.setPosition(0,-20, this.bg02.position.z  - this.movingMaxRange)
         } else if (this.bg02.position.z > this.movingMaxRange) {
-            this.bg02.setPosition(0,0, this.bg01.position.z  - this.movingMaxRange)
+            this.bg02.setPosition(0,-20, this.bg01.position.z  - this.movingMaxRange)
         }
     }
 }
