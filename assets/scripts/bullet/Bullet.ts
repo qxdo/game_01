@@ -5,10 +5,10 @@ const Bullet_Max_Moving_Range = 50;
 @ccclass('Bullet')
 export class Bullet extends Component {
     @property
-    public bulletSpeed = 0.01;
+    public bulletSpeed = 1;
 
     start() {
-
+        // console.log("start bullet")
     }
 
     update(deltaTime: number) {
@@ -17,7 +17,7 @@ export class Bullet extends Component {
         this.node.setPosition(pos.x, pos.y, moveLength)
         if(math.bits.abs(moveLength) > Bullet_Max_Moving_Range) {
             this.node.destroy()
-            console.log("bullet destroyed")
+            // console.log("bullet destroyed")
         }
     }
 }

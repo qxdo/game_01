@@ -1,6 +1,6 @@
-import { _decorator, Component, Node, Prefab, instantiate, math } from 'cc';
+import { _decorator, Component, Node, Prefab, instantiate, math, TERRAIN_HEIGHT_BASE } from 'cc';
 import { Bullet } from '../bullet/Bullet';
-import { enemyPlane } from '../plane/enemyPlane';
+import { EnemyPlane } from '../plane/EnemyPlane';
 import { Constant } from './Constant';
 const { ccclass, property } = _decorator;
 
@@ -44,8 +44,8 @@ export class GameManager extends Component {
     @property
     public enemy02Speed = 0.7;
 
-
     private currentCreateEnemyTime = 0;
+
     private combinationInterval = Constant.Combination.Plan1;
 
 
@@ -69,19 +69,26 @@ export class GameManager extends Component {
 
     update(deltaTime: number) {
         this.currentShootTime += deltaTime
+        this.currentCreateEnemyTime += deltaTime
         if(this.isShoot && this.currentShootTime > this.shootTime) {
             this.createPlayerBullet()
             this.currentShootTime = 0
         }
+        
         if(this.combinationInterval === Constant.Combination.Plan1) {
-            this.currentCreateEnemyTime += deltaTime
-            if (this.currentCreateEnemyTime > this.currentCreateEnemyTime) {
-                this.createEnemyPlane()
+            
+            if (this.currentCreateEnemyTime > this.createEnemyTime) {
+                this.createEnemyPlaneCombine1()
+                this.currentCreateEnemyTime = 0
             }
         } else if(this.combinationInterval === Constant.Combination.Plan2) {
-
+            if (this.currentCreateEnemyTime > this.createEnemyTime * 0.8) {
+                this.createEnemyPlaneCombine2()
+                this.currentCreateEnemyTime = 0
+            }
         } else {
-
+            this.createEnemyPlaneCombine1()
+            this.currentCreateEnemyTime = 0
         }
     }
 
@@ -90,14 +97,18 @@ export class GameManager extends Component {
     }
 
     private changeMode() {
+        console.log("changeMode func")
         this.schedule(this.onSchedule, 10, 3)
     }    
     private onSchedule() {
         this.combinationInterval++
+        console.log("combinationInterval:", this.combinationInterval)
     }
 
-    public createEnemyPlane(){
+    public createEnemyPlaneCombine1(){
+        console.log("create enemy plane")
         const enemyType = math.randomRangeInt(1,3)
+        console.log("create enemy plane", enemyType)
         let plane: Prefab = null
         let planeSpeed = 0
         if(enemyType == Constant.EnemyType.Type1) {
@@ -110,11 +121,36 @@ export class GameManager extends Component {
 
         const enemy = instantiate(plane)
         enemy.setParent(this.node)
-        const enemyComp = enemy.getComponent(enemyPlane)
-        enemyComp.show(planeSpeed)
-
         const randomPos = math.randomRangeInt(-25, 26)
         enemy.setPosition(randomPos, 0, -50)
+
+        const enemyComp = enemy.getComponent(EnemyPlane)
+
+        enemyComp.show(planeSpeed)
+    }
+
+    public createEnemyPlaneCombine2(){
+        console.log("create enemy plane plan 2")
+        const enemyArray = new Array<Node>(7)
+        const enemyPos = [
+            -21, 0, -60,
+            -14, 0, -55,
+            -7, 0, -50,
+            0, 0, -45,
+            7, 0, -50,
+            14, 0, -55,
+            21, 0, -60,
+        ]
+        for (let index = 0; index < enemyArray.length; index++) {
+            enemyArray[index] = instantiate(this.enemyPlane02)
+            const element = enemyArray[index]
+            element.setParent(this.node)
+            const startIndex = index * 3
+            element.setPosition(element[startIndex], element[startIndex + 1], element[startIndex + 2])
+            const enemyComp = element.getComponent(EnemyPlane)
+            enemyComp.show(this.enemy02Speed)
+            
+        }
     }
 }
 
